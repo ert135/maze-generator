@@ -1,7 +1,6 @@
 {
   "name": "maze-generator",
   "version": "1.0.0",
-<<<<<<< HEAD
   "description": "Maze generation",
   "main": "index.js",
   "scripts": {
@@ -23,24 +22,5 @@
     "webpack": "^3.12.0",
     "source-map-loader": "^0.2.3",
     "typescript": "^2.9.2"
-=======
-  "description": "Example of a recursive maze generation algorthim",
-  "author": "Robert Smith <robert.smith01@bbc.co.uk>",
-  "license": "MIT",
-  "repository": "https://github.com/iaincollins/nextjs-starter.git",
-  "scripts": {
-    "test": "xo",
-    "start": "node server/server.js"
-  },
-  "dependencies": {
-    "@types/ramda": "^0.24.18",
-    "awesome-typescript-loader": "^3.2.1",
-    "p5": "^0.5.11",
-    "ramda": "^0.25.0",
-    "source-map-loader": "^0.2.1",
-    "typescript": "^2.4.1",
-    "webpack-dev-server": "^2.6.1",
-    "webpack": "3.9.1"
->>>>>>> 5382c03ebe5b1409bbdb335111df2451470a5bdb
   }
 }

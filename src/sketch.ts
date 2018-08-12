@@ -1,15 +1,16 @@
-export const p5Wrapper = function( sketch: p5 ) {
+import Cell from './Cell'
 
+export const p5Wrapper = function( sketch: p5 ) {
     sketch.setup = function() {
-        sketch.createCanvas(sketch.windowWidth, sketch.windowHeight)
+        sketch.createCanvas(800, 800)
     };
 
     sketch.draw = function() {
         if (sketch.mouseIsPressed) {
-                sketch.fill(0, 0, 0)
+            console.log('Should be filling')
+                sketch.fill(0, 70, 20)
         } else {
             sketch.fill(255, 0, 0)
         }
     };
-
 };
