@@ -76506,20 +76506,85 @@ module.exports = g;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var grid_1 = __webpack_require__(4);
 exports.p5Wrapper = function (sketch) {
+    var grid;
     sketch.setup = function () {
         sketch.createCanvas(800, 800);
+        grid = new grid_1.default(sketch, 800, 800, 16);
     };
     sketch.draw = function () {
-        if (sketch.mouseIsPressed) {
-            console.log('Should be filling');
-            sketch.fill(0, 70, 20);
-        }
-        else {
-            sketch.fill(255, 0, 0);
-        }
+        grid.drawGrid();
     };
 };
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Cell_1 = __webpack_require__(5);
+var Grid = /** @class */ (function () {
+    function Grid(p5Ref, width, height, w) {
+        this.p5Ref = p5Ref;
+        this.width = width;
+        this.height = height;
+        this.w = w;
+        this.cells = [];
+        this.cols = Math.floor(this.width / this.w);
+        this.rows = Math.floor(this.height / this.w);
+        this.gridWidth = w;
+        this.buildGrid();
+    }
+    Grid.prototype.buildGrid = function () {
+        console.log('Making grid', this.cols, this.rows);
+        for (var i = 0; i < this.cols; i++) {
+            for (var j = 0; j < this.rows; j++) {
+                this.cells.push(new Cell_1.default(this.p5Ref, i, j));
+            }
+        }
+        console.log('cells here now are ', this.cells);
+    };
+    Grid.prototype.drawGrid = function () {
+        var _this = this;
+        this.cells.forEach(function (cell) {
+            cell.draw(_this.w);
+        });
+    };
+    return Grid;
+}());
+exports.default = Grid;
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Cell = /** @class */ (function () {
+    function Cell(p5Ref, i, j) {
+        this.p5Ref = p5Ref;
+        this.i = i;
+        this.j = j;
+    }
+    /*
+        Passiung in the width here is a bit hacky,
+        but each cell needs to know the totaL width of the grid
+        so it can draw itsself in the position
+    */
+    Cell.prototype.draw = function (width) {
+        var x = this.i * width;
+        var y = this.j * width;
+        this.p5Ref.rect(x, y, width, width);
+    };
+    return Cell;
+}());
+exports.default = Cell;
 
 
 /***/ })

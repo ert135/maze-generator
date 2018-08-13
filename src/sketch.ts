@@ -1,16 +1,15 @@
-import Cell from './Cell'
+import Grid from './grid';
 
 export const p5Wrapper = function( sketch: p5 ) {
+
+    let grid: Grid;
+
     sketch.setup = function() {
         sketch.createCanvas(800, 800)
+        grid = new Grid(sketch, 800, 800, 16);
     };
 
     sketch.draw = function() {
-        if (sketch.mouseIsPressed) {
-            console.log('Should be filling')
-                sketch.fill(0, 70, 20)
-        } else {
-            sketch.fill(255, 0, 0)
-        }
+        grid.drawGrid();
     };
 };
