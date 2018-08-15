@@ -1,15 +1,15 @@
-import {Wall} from './Wall'
+import Wall from './Wall'
 
 export default class Cell {
 
-    private wallState: Enumerator<any>
+    private wallState: Wall;
 
     constructor(
         private p5Ref: p5,
         public i: number, 
         public j: number
     ) {
-        this.wallState = Wall.State
+        this.wallState = new Wall();
     }
 
     /*
@@ -24,9 +24,18 @@ export default class Cell {
         //Wall drawing logic
 
         //top right bottom left
-        this.p5Ref.line(x,y,x+width,y);
-        this.p5Ref.line(x+width,y,x+width,y+width);
-        this.p5Ref.line(x+width,y+width,x,y+width);
-        this.p5Ref.line(x,y+width,x,y);
+        if(this.wallState.topState() === true){
+            this.p5Ref.line(x,y,x+width,y);
+        }
+        if(this.wallState.rightState() === true){
+            this.p5Ref.line(x+width,y,x+width,y+width);
+        }
+        if(this.wallState.downState() === true){
+            this.p5Ref.line(x+width,y+width,x,y+width)
+        }
+        if(this.wallState.leftState() === true){
+            this.p5Ref.line(x,y+width,x,y);
+        }
+
     }
 }
