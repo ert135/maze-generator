@@ -76528,15 +76528,15 @@ exports.p5Wrapper = function (sketch) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Cell_1 = __webpack_require__(5);
 var Grid = /** @class */ (function () {
-    function Grid(p5Ref, width, height, w) {
+    function Grid(p5Ref, width, height, resolution) {
         this.p5Ref = p5Ref;
         this.width = width;
         this.height = height;
-        this.w = w;
+        this.resolution = resolution;
         this.cells = [];
-        this.cols = Math.floor(this.width / this.w);
-        this.rows = Math.floor(this.height / this.w);
-        this.gridWidth = w;
+        //800 / 16 = 50
+        this.cols = Math.floor(this.width / this.resolution);
+        this.rows = Math.floor(this.height / this.resolution);
         this.buildGrid();
     }
     Grid.prototype.buildGrid = function () {
@@ -76551,7 +76551,7 @@ var Grid = /** @class */ (function () {
     Grid.prototype.drawGrid = function () {
         var _this = this;
         this.cells.forEach(function (cell) {
-            cell.draw(_this.w);
+            cell.draw(_this.resolution);
         });
     };
     return Grid;
@@ -76580,7 +76580,13 @@ var Cell = /** @class */ (function () {
     Cell.prototype.draw = function (width) {
         var x = this.i * width;
         var y = this.j * width;
-        this.p5Ref.rect(x, y, width, width);
+        // this.p5Ref.rect(x,y,width,width);
+        //Wall drawing logic
+        //top right bottom left
+        this.p5Ref.line(x, y, x + width, y);
+        this.p5Ref.line(x + width, y, x + width, y + width);
+        this.p5Ref.line(x + width, y + width, x, y + width);
+        this.p5Ref.line(x, y + width, x, y);
     };
     return Cell;
 }());

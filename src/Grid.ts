@@ -10,11 +10,11 @@ export default class Grid {
         private p5Ref: p5,
         private width: number,
         private height: number,
-        private w: number
+        private resolution: number
     ) {
-        this.cols = Math.floor(this.width/this.w);
-        this.rows = Math.floor(this.height/this.w);
-        this.gridWidth = w;
+        //800 / 16 = 50
+        this.cols = Math.floor(this.width/this.resolution);
+        this.rows = Math.floor(this.height/this.resolution);
         this.buildGrid();
     }
 
@@ -31,7 +31,7 @@ export default class Grid {
 
     public drawGrid() : void {
         this.cells.forEach((cell: Cell) => {
-            cell.draw(this.w);
+            cell.draw(this.resolution);
         });
     }
 }
