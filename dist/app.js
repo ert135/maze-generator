@@ -76512,9 +76512,11 @@ exports.p5Wrapper = function (sketch) {
     sketch.setup = function () {
         sketch.createCanvas(800, 800);
         grid = new grid_1.default(sketch, 800, 800, 16);
+        //sketch.frameRate(1);
     };
     sketch.draw = function () {
         grid.drawGrid();
+        grid.generateMaze();
     };
 };
 
@@ -76534,25 +76536,33 @@ var Grid = /** @class */ (function () {
         this.height = height;
         this.resolution = resolution;
         this.cells = [];
-        //800 / 16 = 50
         this.cols = Math.floor(this.width / this.resolution);
         this.rows = Math.floor(this.height / this.resolution);
         this.buildGrid();
+        this.current = this.cells[0];
     }
     Grid.prototype.buildGrid = function () {
-        console.log('Making grid', this.cols, this.rows);
-        for (var i = 0; i < this.cols; i++) {
-            for (var j = 0; j < this.rows; j++) {
-                this.cells.push(new Cell_1.default(this.p5Ref, i, j));
+        for (var j = 0; j < this.rows; j++) {
+            for (var i = 0; i < this.cols; i++) {
+                this.cells.push(new Cell_1.default(this.p5Ref, i, j, this.cols, this.rows, this.cols));
             }
         }
-        console.log('cells here now are ', this.cells);
+        this.cells[0].visited = true;
     };
     Grid.prototype.drawGrid = function () {
         var _this = this;
         this.cells.forEach(function (cell) {
             cell.draw(_this.resolution);
         });
+    };
+    Grid.prototype.generateMaze = function () {
+        console.log('Current is now ', this.current);
+        var next = this.current.getRandomUnvisitedNeighbor(this.cells);
+        if (next) {
+            next.visited = true;
+            console.log('random neighbor is ', next);
+            this.current = next;
+        }
     };
     return Grid;
 }());
@@ -76566,31 +76576,146 @@ exports.default = Grid;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var Wall_1 = __webpack_require__(6);
 var Cell = /** @class */ (function () {
-    function Cell(p5Ref, i, j) {
+    function Cell(p5Ref, i, j, columns, rows, cellWidth, visited, wallState) {
+        if (visited === void 0) { visited = false; }
+        if (wallState === void 0) { wallState = new Wall_1.default(); }
         this.p5Ref = p5Ref;
         this.i = i;
         this.j = j;
+        this.columns = columns;
+        this.rows = rows;
+        this.cellWidth = cellWidth;
+        this.visited = visited;
+        this.wallState = wallState;
     }
-    /*
-        Passiung in the width here is a bit hacky,
-        but each cell needs to know the totaL width of the grid
-        so it can draw itsself in the position
-    */
+    Cell.prototype.drawWalls = function (x, y, width) {
+        if (this.wallState.getTopState() === true) {
+            this.p5Ref.line(x, y, x + width, y);
+        }
+        if (this.wallState.getRightState() === true) {
+            this.p5Ref.line(x + width, y, x + width, y + width);
+        }
+        if (this.wallState.getDownState() === true) {
+            this.p5Ref.line(x + width, y + width, x, y + width);
+        }
+        if (this.wallState.getLeftState() === true) {
+            this.p5Ref.line(x, y + width, x, y);
+        }
+    };
+    Cell.prototype.colorActive = function (x, y) {
+        if (this.visited === true) {
+            this.p5Ref.fill(255, 0, 255, 100);
+            this.p5Ref.rect(x, y, 16, 16);
+        }
+    };
     Cell.prototype.draw = function (width) {
         var x = this.i * width;
         var y = this.j * width;
         // this.p5Ref.rect(x,y,width,width);
-        //Wall drawing logic
-        //top right bottom left
-        this.p5Ref.line(x, y, x + width, y);
-        this.p5Ref.line(x + width, y, x + width, y + width);
-        this.p5Ref.line(x + width, y + width, x, y + width);
-        this.p5Ref.line(x, y + width, x, y);
+        this.drawWalls(x, y, width);
+        this.colorActive(x, y);
+    };
+    /**
+     * Because I built this using a 1 dimentional array we have to use the following formula to get the
+     * cells index.
+    **/
+    Cell.prototype.getIndex = function (i, j) {
+        if (i < 0 || j < 0 || i > 50 - 1 || j > 50 - 1) {
+            return -1;
+        }
+        return i + j * 50;
+    };
+    Cell.prototype.getRandomUnvisitedNeighbor = function (grid) {
+        var neighbors = [];
+        var top = grid[this.getIndex(this.i, this.j - 1)];
+        var right = grid[this.getIndex(this.i + 1, this.j)];
+        var bottom = grid[this.getIndex(this.i, this.j + 1)];
+        var left = grid[this.getIndex(this.i - 1, this.j)];
+        if (top && !top.visited) {
+            neighbors.push(top);
+        }
+        if (right && !right.visited) {
+            neighbors.push(right);
+        }
+        if (bottom && !bottom.visited) {
+            neighbors.push(bottom);
+        }
+        if (left && !left.visited) {
+            neighbors.push(left);
+        }
+        if (neighbors.length > 0) {
+            var randomIndex = Math.floor(Math.random() * neighbors.length);
+            console.log('');
+            return neighbors[randomIndex];
+        }
+        return null;
     };
     return Cell;
 }());
 exports.default = Cell;
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Wall = /** @class */ (function () {
+    function Wall(top, left, right, down) {
+        if (top === void 0) { top = true; }
+        if (left === void 0) { left = true; }
+        if (right === void 0) { right = true; }
+        if (down === void 0) { down = true; }
+        this.top = top;
+        this.left = left;
+        this.right = right;
+        this.down = down;
+    }
+    //Probably overkill to have getters, wanted to use a enum but typescript wouldn't play nice
+    //We could possibly expand this to have differetn types of walls in future.
+    Wall.prototype.getTopState = function () {
+        return this.top;
+    };
+    Wall.prototype.getLeftState = function () {
+        return this.left;
+    };
+    Wall.prototype.getRightState = function () {
+        return this.right;
+    };
+    Wall.prototype.getDownState = function () {
+        return this.down;
+    };
+    Wall.prototype.removeTopWall = function () {
+        this.top = false;
+    };
+    Wall.prototype.removeLeftWall = function () {
+        this.left = false;
+    };
+    Wall.prototype.removeRightWall = function () {
+        this.right = false;
+    };
+    Wall.prototype.removeDownWall = function () {
+        this.down = false;
+    };
+    Wall.prototype.addTopWall = function () {
+        this.top = true;
+    };
+    Wall.prototype.addLeftWall = function () {
+        this.left = true;
+    };
+    Wall.prototype.addRightWall = function () {
+        this.right = true;
+    };
+    Wall.prototype.addDownWall = function () {
+        this.down = true;
+    };
+    return Wall;
+}());
+exports.default = Wall;
 
 
 /***/ })
